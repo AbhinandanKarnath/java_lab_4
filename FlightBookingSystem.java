@@ -11,9 +11,9 @@ public class FlightBookingSystem {
     private static final String[] sources = {"Chicago", "Los Angeles", "Toronto", "Berlin", "Dubai", "Mumbai", "Tokyo", "Seoul"};
     private static final String[] destinations = {"New York", "Paris", "Tokyo", "Mumbai", "Dubai", "Sydney", "London"};
     private static final Random random = new Random();
-    private static final List<FlightBooking> bookings = new ArrayList<>();
+    private static final List<Bookable> bookings = new ArrayList<>();
 
-    private static FlightBooking createBooking(String flightType) {
+    private static Bookable createBooking(String flightType) {
         String bookingID = "B" + (random.nextInt(900) + 100);
         String passengerName = names[random.nextInt(names.length)];
         String source = sources[random.nextInt(sources.length)];
@@ -21,7 +21,7 @@ public class FlightBookingSystem {
 
         FlightDetails flightDetails = new FlightDetails(bookingID, passengerName, flightType, source, destination);
 
-        if ("Domestic".equals(flightType)) {
+        if ("Domestic".equalsIgnoreCase(flightType)) {
             return new DomesticFlightBooking(flightDetails);
         } else {
             return new InternationalFlightBooking(flightDetails);
@@ -33,7 +33,7 @@ public class FlightBookingSystem {
         if (bookings.isEmpty()) {
             System.out.println("No bookings found.");
         } else {
-            for (FlightBooking booking : bookings) {
+            for (Bookable booking : bookings) {
                 booking.displayInfo();
                 System.out.println("------------------------");
             }
@@ -43,8 +43,8 @@ public class FlightBookingSystem {
     private static void displayBookingsByType(String flightType) {
         System.out.println("\nBookings for " + flightType + " flights:");
         boolean found = false;
-        for (FlightBooking booking : bookings) {
-            if (booking.getFlightDetails().flightType().equalsIgnoreCase(flightType)) {
+        for (Bookable booking : bookings) {
+            if (booking instanceof FlightBooking fb && fb.getFlightDetails().flightType().equalsIgnoreCase(flightType)) {
                 booking.displayInfo();
                 System.out.println("------------------------");
                 found = true;
@@ -70,13 +70,13 @@ public class FlightBookingSystem {
 
             switch (choice) {
                 case 1 -> {
-                    FlightBooking domesticBooking = createBooking("Domestic");
-                    new BookingThread(domesticBooking).start();
+                    Bookable domesticBooking = createBooking("Domestic");
+                    domesticBooking.bookFlight();
                     bookings.add(domesticBooking);
                 }
                 case 2 -> {
-                    FlightBooking internationalBooking = createBooking("International");
-                    new BookingThread(internationalBooking).start();
+                    Bookable internationalBooking = createBooking("International");
+                    internationalBooking.bookFlight();
                     bookings.add(internationalBooking);
                 }
                 case 3 -> displayAllBookings();
